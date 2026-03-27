@@ -1,28 +1,61 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0/contracts/utils/cryptography/ECDSA.sol";
+
 contract Identity {
     address public owner;
 
-    uint256 private credentialCount;
-
-    event credentialIssued(address credentialAddress);
-    event credentialRevoked(bool revocationStatus, string responseMessage);
-
-    constructor(address _owner) {
-        owner = _owner;
+    struct Credential {
+        bool valid;
+        string ipfsCID;
+        address walletAddress;
     }
 
-    function issueCredential(string calldata firstName, string calldata lastName, string calldata dob) public returns (bool) {
-        // if credentialIssued() == True:
-        //      emit credentialIssued()
-        //      credentialCount=+1
+    mapping(bytes32 => Credential) private credentials;
+
+    constructor() {
+        owner = msg.sender;
     }
 
-    function revokeCredential(address identityAddress) public returns (bool) {
-        // if credentialRevoked() == True:
-        //      emit credentialRevoked()
-        //      credentialCount=-1, maybe not decrement?
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not authorized");
+        _;
     }
 
+    function verify(
+        bytes32 credentialHash,
+        string calldata cid,
+        bytes calldata signature
+    ) public view returns (bool) {
+        Credential memory cred = credentials[credentialHash];
+        address signer = ECDSA.recover(credentialHash, signature);
+        return
+            cred.valid &&
+            keccak256(abi.encodePacked(cred.ipfsCID)) ==
+                keccak256(abi.encodePacked(cid)) &&
+            signer == cred.walletAddress;
+    }
+
+    function issueCredential(
+        bytes32 credentialHash,
+        string calldata cid,
+        address walletAddress
+    ) public onlyOwner returns (bool) {
+        if (!credentials[credentialHash].valid) {
+            credentials[credentialHash] = Credential(true, cid, walletAddress);
+            return true;
+        }
+        return false;
+    }
+
+    function revokeCredential(
+        bytes32 credentialHash
+    ) public onlyOwner returns (bool) {
+        if (credentials[credentialHash].valid) {
+            credentials[credentialHash].valid = false;
+            return true;
+        }
+        return false;
+    }
 }
