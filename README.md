@@ -38,9 +38,9 @@ pip install requests web3 eth-abi
 
 2. Deploy `AgeVerificationVerifier.sol` second, pasting the `AgeVerificationIssuer.sol` address into the constructor field before deploying.
 
-3. With the IPFS daemon running and both contracts deployed, run `info_2_ipfs.py` with the required arguments:
+3. With the IPFS daemon running and both contracts deployed, run `info_2_ipfs.py` with the required arguments (May have to make executable first):
 ```bash
-    python info_2_ipfs.py --firstName John --lastName Doe --dob 1990-01-01
+    info_2_ipfs.py --firstName John --lastName Doe --dob 1990-01-01
 ```
 
 4. In Remix, navigate to the deployed `AgeVerificationIssuer` contract. Call `issueCredential` with the `credentialHash`, `ipfsCID`, and `walletAddress` printed by the script.
