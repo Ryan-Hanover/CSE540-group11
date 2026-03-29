@@ -36,6 +36,7 @@ contract Issuer {
         Credential memory cred = credentials[credentialHash];
         bytes32 ethHash = MessageHashUtils.toEthSignedMessageHash(credentialHash);
         address signer = ECDSA.recover(ethHash, signature);
+        require(didRegistry.isDIDActive(signer), "Not an active DID");
         return
             cred.valid &&
             keccak256(abi.encodePacked(cred.ipfsCID)) ==

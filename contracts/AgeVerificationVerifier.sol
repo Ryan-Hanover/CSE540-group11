@@ -23,8 +23,8 @@ contract Verifier {
         _;
     }
 
-    function verify(address holderAddress, bytes32 credentialHash, string calldata cid, bytes calldata signature) external view onlyOwner returns (bool) {
-        require(didRegistry.isDIDActive(holderAddress), "Not an active DID");
+
+    function verify(bytes32 credentialHash, string calldata cid, bytes calldata signature) external view onlyOwner returns (bool) {
         return issuer.verify(credentialHash, cid, signature);
     }
 }
