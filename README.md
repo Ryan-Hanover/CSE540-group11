@@ -1,6 +1,6 @@
 # CSE540-group11
 ## 1. Overview
-This project implements a privacy-preserving voter eligibility system on Ethereum. The system enables the voter to prove that they are 18 or older without revealing unneccessary personal information.
+This project implements a privacy-preserving voter eligibility system on Ethereum. The system enables the voter to prove that they are 18 or older without revealing unneccessary personal information. This system enables age verification, where the trusted issuer only provides a digital credential and a verifier checks only the age condition. Overall, this decentralized system aims to mitigate the risks associated with centralized systems, such as single points of failure and data breaches.
 
 ## 2. Features
 This project implements a three-contract architecture:
