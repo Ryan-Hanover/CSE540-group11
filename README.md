@@ -16,6 +16,10 @@ This project implements a three-contract architecture:
 
 ### Dependencies (Debian/Ubuntu Linux)
 
+**Solidity Smart Contracts**
+- Compile and Deploy on Remix IDE
+- Solidity ```^0.8.20```
+
 **Kubo IPFS:**
 1. `wget https://dist.ipfs.tech/kubo/v0.40.1/kubo_v0.40.1_linux-amd64.tar.gz`
 2. `tar -xvzf kubo_v0.40.1_linux-amd64.tar.gz`
