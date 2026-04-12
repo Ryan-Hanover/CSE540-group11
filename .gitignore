@@ -23,6 +23,9 @@ pyvenv.cfg
 
 .DS_Store
 
+################ KUBO ################
+kubo/
+
 ################PYTHON TEMPLATE#####################
 
 # Byte-compiled / optimized / DLL files
