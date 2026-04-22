@@ -2,10 +2,15 @@
 
 from web3 import Web3
 from common import (
+    DID_REGISTRY_ABI,
     connect_chain_with_account,
     prompt_contract_address,
     send_contract_transaction,
-    prompt_did_document_hash,
+    prompt_did_document_hash, 
+    prompt_non_empty,
+    upload_identity_to_ipfs,
+    compute_credential_hash,
+    sign_credential_hash,
 )
 
 def register_did() -> None:
@@ -35,11 +40,32 @@ def register_did() -> None:
 
 
 def request_credential_package() -> None:
-    pass
+    """Collect identity info, upload to IPFS, and compute credential hash."""
+    first_name = prompt_non_empty("First name: ")
+    last_name = prompt_non_empty("Last name: ")
+    dob = prompt_non_empty("DOB (YYYY-MM-DD): ")
+
+    cid = upload_identity_to_ipfs(first_name, last_name, dob)
+    credential_hash = compute_credential_hash(first_name, last_name, dob)
+
+    print("\nShare this package with the Issuer:")
+    print(f"credentialHash: 0x{credential_hash.hex()}")
+    print(f"ipfsCID:        {cid}")
 
 
 def sign_for_presentation() -> None:
-    pass
+    """Sign credential hash so verifier can check eligibility proof."""
+    rpc_url = prompt_non_empty("RPC URL (for signer context): ")
+    private_key = prompt_non_empty("Voter private key (0x...): ", secret=True)
+    credential_hash_hex = prompt_non_empty("credentialHash (0x...): ")
+
+    web3 = Web3(Web3.HTTPProvider(rpc_url))
+    if not web3.is_connected():
+        raise RuntimeError("Could not connect to RPC URL")
+
+    signature_hex = sign_credential_hash(web3, private_key, credential_hash_hex)
+    print("\nShare this with the Verifier:")
+    print(f"signature: {signature_hex}")
 
 
 def menu() -> str:

@@ -24,6 +24,7 @@ DID_REGISTRY_ABI = [
     },
 ]
 
+
 @dataclass
 class ChainContext:
     web3: Web3
@@ -62,9 +63,6 @@ def prompt_contract_address(web3: Web3, label: str) -> str:
     address = prompt_non_empty(f"{label} address: ")
     return web3.to_checksum_address(address)
 
-def prompt_did_document_hash() -> tuple[bytes, str]:
-    pass
-    # TODO: implement standardized prompt flow for DID document hash
 
 def send_contract_transaction(web3: Web3, account: object, fn_call) -> object:
     tx = fn_call.build_transaction(
@@ -79,5 +77,44 @@ def send_contract_transaction(web3: Web3, account: object, fn_call) -> object:
     signed = web3.eth.account.sign_transaction(tx, account.key)
     tx_hash = web3.eth.send_raw_transaction(signed.raw_transaction)
     return web3.eth.wait_for_transaction_receipt(tx_hash)
+
+
+def compute_credential_hash(first_name: str, last_name: str, dob: str) -> bytes:
+    """Match Solidity keccak256(abi.encode(string,string,string))."""
+    encoded = encode(["string", "string", "string"], [first_name, last_name, dob])
+    return Web3.keccak(encoded)
+
+
+def upload_identity_to_ipfs(first_name: str, last_name: str, dob: str, ipfs_api: str = IPFS_API_DEFAULT) -> str:
+    """Upload identity JSON to IPFS and return CID."""
+    payload = json.dumps(
+        {
+            "firstName": first_name,
+            "lastName": last_name,
+            "dob": dob,
+        }
+    )
+
+    response = requests.post(
+        f"{ipfs_api}/add",
+        files={"file": payload.encode()},
+        timeout=20,
+    )
+    response.raise_for_status()
+    data = response.json()
+    if "Hash" not in data:
+        raise RuntimeError("Unexpected IPFS response: missing Hash")
+    return data["Hash"]
+
+
+def sign_credential_hash(web3: Web3, private_key: str, credential_hash_hex: str) -> str:
+    """Create an Ethereum personal_sign style signature for credential hash."""
+    _ = parse_bytes32(credential_hash_hex)
+    message = encode_defunct(hexstr=credential_hash_hex)
+    signed = web3.eth.account.sign_message(message, private_key=private_key)
+    signature = signed.signature.hex()
+    if signature.startswith("0x"):
+        return signature
+    return f"0x{signature}"
 
 # TODO: add common functions for
