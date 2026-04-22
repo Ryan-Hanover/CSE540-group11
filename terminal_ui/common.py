@@ -2,7 +2,15 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
+import json
 from web3 import Web3
+import re
+import secrets
+import requests
+from eth_abi import encode
+from eth_account.messages import encode_defunct
+from getpass import getpass
+
 # TODO: import additional necessary packages
 
 IPFS_API = "http://127.0.0.1:5001/api/v0"
@@ -43,6 +51,20 @@ ISSUER_ABI = [
         "stateMutability": "nonpayable",
         "type": "function",
     },
+]
+
+VERIFIER_ABI = [
+    {
+        "inputs": [
+            {"internalType": "bytes32", "name": "credentialHash", "type": "bytes32"},
+            {"internalType": "string", "name": "cid", "type": "string"},
+            {"internalType": "bytes", "name": "signature", "type": "bytes"},
+        ],
+        "name": "verify",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "view",
+        "type": "function",
+    }
 ]
 
 @dataclass
@@ -92,6 +114,15 @@ def parse_bytes32(value: str) -> bytes:
     if len(raw) != 32:
         raise ValueError("bytes32 must be exactly 32 bytes")
     return raw
+
+
+def parse_signature(value: str) -> bytes:
+    """Parse a 0x-prefixed signature string into bytes."""
+    clean = value.strip()
+    if not clean.startswith("0x"):
+        raise ValueError("Signature must start with 0x")
+    return bytes.fromhex(clean[2:])
+
 
 def send_contract_transaction(web3: Web3, account: object, fn_call) -> object:
     tx = fn_call.build_transaction(
