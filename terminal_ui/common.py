@@ -24,6 +24,26 @@ DID_REGISTRY_ABI = [
     },
 ]
 
+ISSUER_ABI = [
+    {
+        "inputs": [
+            {"internalType": "bytes32", "name": "credentialHash", "type": "bytes32"},
+            {"internalType": "string", "name": "cid", "type": "string"},
+            {"internalType": "address", "name": "walletAddress", "type": "address"},
+        ],
+        "name": "issueCredential",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
+    {
+        "inputs": [{"internalType": "bytes32", "name": "credentialHash", "type": "bytes32"}],
+        "name": "revokeCredential",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
+]
 
 @dataclass
 class ChainContext:
@@ -63,6 +83,15 @@ def prompt_contract_address(web3: Web3, label: str) -> str:
     address = prompt_non_empty(f"{label} address: ")
     return web3.to_checksum_address(address)
 
+def parse_bytes32(value: str) -> bytes:
+    """Parse a 0x-prefixed 32-byte hex value into bytes."""
+    clean = value.strip()
+    if not clean.startswith("0x"):
+        raise ValueError("bytes32 must start with 0x")
+    raw = bytes.fromhex(clean[2:])
+    if len(raw) != 32:
+        raise ValueError("bytes32 must be exactly 32 bytes")
+    return raw
 
 def send_contract_transaction(web3: Web3, account: object, fn_call) -> object:
     tx = fn_call.build_transaction(
