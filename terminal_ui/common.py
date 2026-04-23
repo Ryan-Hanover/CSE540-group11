@@ -105,6 +105,23 @@ def prompt_contract_address(web3: Web3, label: str) -> str:
     address = prompt_non_empty(f"{label} address: ")
     return web3.to_checksum_address(address)
 
+def prompt_did_document_hash() -> tuple[bytes, str]:
+    """Prompt for a DID document hash, either as a 0x-prefixed bytes32
+    or as raw document text to be hashed with keccak256.
+    Returns (document_hash_bytes, source_info)."""
+    print("Provide DID document hash source:")
+    print("  1. Paste 0x-prefixed bytes32 hash")
+    print("  2. Enter raw document text (will be keccak256-hashed)")
+    choice = input("Choice [1/2]: ").strip()
+    if choice == "1":
+        hex_value = prompt_non_empty("documentHash (0x...): ")
+        return parse_bytes32(hex_value), f"hash={hex_value}"
+    if choice == "2":
+        text = prompt_non_empty("DID document text: ")
+        return Web3.keccak(text=text), f"text(len={len(text)})"
+    raise ValueError("Invalid choice for DID document hash source")
+
+
 def parse_bytes32(value: str) -> bytes:
     """Parse a 0x-prefixed 32-byte hex value into bytes."""
     clean = value.strip()
@@ -145,7 +162,7 @@ def compute_credential_hash(first_name: str, last_name: str, dob: str) -> bytes:
     return Web3.keccak(encoded)
 
 
-def upload_identity_to_ipfs(first_name: str, last_name: str, dob: str, ipfs_api: str = IPFS_API_DEFAULT) -> str:
+def upload_identity_to_ipfs(first_name: str, last_name: str, dob: str, ipfs_api: str = IPFS_API) -> str:
     """Upload identity JSON to IPFS and return CID."""
     payload = json.dumps(
         {
