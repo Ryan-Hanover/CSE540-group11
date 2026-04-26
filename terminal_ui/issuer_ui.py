@@ -1,5 +1,9 @@
 """Terminal UI for Issuer (Government Body) actions."""
 
+from datetime import datetime
+
+from eth_account.messages import encode_defunct
+
 from common import (
     ISSUER_ABI,
     connect_chain_with_account,
@@ -9,6 +13,17 @@ from common import (
     send_contract_transaction,
 )
 
+def is_18_or_older(dob_str: str) -> bool:
+    """Return True if the voter's age is 18 or older."""
+    dob = datetime.strptime(dob_str.strip(), "%Y-%m-%d").date()
+    today = datetime.now().date()
+
+    age = today.year - dob.year
+    if (today.month, today.day) < (dob.month, dob.day):
+        age -= 1
+
+    return (age >= 18)
+
 def issue_credential() -> None:
     """Issue an age credential to a voter wallet."""
     context = connect_chain_with_account()
@@ -17,6 +32,11 @@ def issue_credential() -> None:
     credential_hash = parse_bytes32(prompt_non_empty("credentialHash (0x...): "))
     cid = prompt_non_empty("ipfsCID: ")
     voter_wallet = context.web3.to_checksum_address(prompt_non_empty("Voter wallet address: "))
+    dob = prompt_non_empty("DOB (YYYY-MM-DD) from credential package: ")
+    if not is_18_or_older(dob):
+        print("\nDENY: User is not old enough to vote.")
+        return
+
 
     contract = context.web3.eth.contract(address=issuer_address, abi=ISSUER_ABI)
     receipt = send_contract_transaction(
@@ -29,6 +49,11 @@ def issue_credential() -> None:
     print(f"txHash: {receipt.transactionHash.hex()}")
     print(f"status: {'SUCCESS' if receipt.status == 1 else 'FAILED'}")
 
+    if receipt.status == 1:
+        issuer_message = encode_defunct(primitive=credential_hash)
+        issuer_signed_message = context.account.sign_message(issuer_message)
+        print("\nShare this with the Verifier:")
+        print(f"Issuer Signature: 0x{issuer_signed_message.signature.hex()}")
 
 def revoke_credential() -> None:
     """Revoke an existing age credential."""
