@@ -1,0 +1,10 @@
+{
+  "name": "cse540-group11-tools",
+  "version": "1.0.0",
+  "description": "Local dev-chain and Solidity dependencies for the age-verification demo.",
+  "private": true,
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.2",
+    "ganache": "^7.9.2"
+  }
+}

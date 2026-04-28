@@ -1,6 +1,5 @@
 """Terminal UI for Voter (Citizen) actions."""
 
-from web3 import Web3
 from common import (
     DID_REGISTRY_ABI,
     connect_chain_with_account,
@@ -53,27 +52,11 @@ def request_credential_package() -> None:
     print(f"ipfsCID:        {cid}")
 
 
-def sign_for_presentation() -> None:
-    """Sign credential hash so verifier can check eligibility proof."""
-    rpc_url = prompt_non_empty("RPC URL (for signer context): ")
-    private_key = prompt_non_empty("Voter private key (0x...): ", secret=True)
-    credential_hash_hex = prompt_non_empty("credentialHash (0x...): ")
-
-    web3 = Web3(Web3.HTTPProvider(rpc_url))
-    if not web3.is_connected():
-        raise RuntimeError("Could not connect to RPC URL")
-
-    signature_hex = sign_credential_hash(web3, private_key, credential_hash_hex)
-    print("\nShare this with the Verifier:")
-    print(f"signature: {signature_hex}")
-
-
 def menu() -> str:
     print("\nVoter UI")
     print("1. Register DID")
     print("2. Request credential package")
-    print("3. Sign credential hash for verifier")
-    print("4. Exit")
+    print("3. Exit")
     return input("Choose option: ").strip()
 
 
@@ -86,8 +69,6 @@ def main() -> None:
             elif choice == "2":
                 request_credential_package()
             elif choice == "3":
-                sign_for_presentation()
-            elif choice == "4":
                 print("Exiting Voter UI.")
                 return
             else:

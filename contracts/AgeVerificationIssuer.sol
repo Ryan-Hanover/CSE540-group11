@@ -73,16 +73,15 @@ contract Issuer {
         // Recover the signer's address from the provided signature and hash
         bytes32 ethHash = MessageHashUtils.toEthSignedMessageHash(credentialHash);
         address signer = ECDSA.recover(ethHash, signature);
-        
-        // Ensure the signer is an active decentralized verifier (DID)
-        require(didRegistry.isDIDActive(signer), "Not an active DID");
 
-        // Returns true ONLY if the credential is valid, the IPFS hashes match, and the voter's wallet matches
+        // Returns true ONLY if the credential is valid, the IPFS hashes match,
+        // the credential is signed by the trusted issuer and the holder's DID is active.
         return
             cred.valid &&
             keccak256(abi.encodePacked(cred.ipfsCID)) ==
                 keccak256(abi.encodePacked(cid)) &&
-            signer == cred.walletAddress;
+            signer == owner && 
+            didRegistry.isDIDActive(cred.walletAddress);
     }
 
     /// @notice Issues a new credential

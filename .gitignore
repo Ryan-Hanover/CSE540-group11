@@ -26,6 +26,13 @@ pyvenv.cfg
 ################ KUBO ################
 kubo/
 
+################ DEV CHAIN TOOLING ################
+tools/node_modules/
+tools/package-lock.json
+tools/.ganache.log
+tools/.ipfs.log
+tools/deployed.json
+
 ################PYTHON TEMPLATE#####################
 
 # Byte-compiled / optimized / DLL files
