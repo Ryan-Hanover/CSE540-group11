@@ -1,7 +1,4 @@
 """Compile and deploy DIDRegistry, Issuer, Verifier to a local RPC.
-
-Writes tools/deployed.json with contract addresses plus two funded
-accounts (authority + voter) that the terminal_ui scripts can consume.
 """
 from __future__ import annotations
 import argparse

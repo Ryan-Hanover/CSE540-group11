@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# One-shot dev-environment bootstrap for the age-verification demo.
-#
 
 set -euo pipefail
 
@@ -114,7 +112,7 @@ VER_ADDR=$("$PY" -c "import json;print(json.load(open('$DEPLOYED'))['verifier'])
 cat <<EOF
 
 -------------------------------------------------------------------
- Environment is ready. Paste the values below into the UI prompts.
+ All setup. Values for terminal UI.
 -------------------------------------------------------------------
  RPC URL              : $RPC_URL
  DIDRegistry address  : $DID_ADDR
