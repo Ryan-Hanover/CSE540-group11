@@ -16,7 +16,7 @@ Stores holder-controlled DID entries, anchors minimal on-chain data, and logs ke
 
 Issues and revokes cryptographic age credentials to eligible voters
 
-###### AgeVerificationVerifier — verifies ZKP-based age proofs and records votes on-chain
+###### AgeVerificationVerifier — verifies age and records votes on-chain
 
 Verifies if the holder has an active DID and if the issuer can confirm the credential for that DID.
 
