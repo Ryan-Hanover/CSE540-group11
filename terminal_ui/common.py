@@ -11,8 +11,6 @@ from eth_abi import encode
 from eth_account.messages import encode_defunct
 from getpass import getpass
 
-# TODO: import additional necessary packages
-
 IPFS_API = "http://127.0.0.1:5001/api/v0"
 
 DID_REGISTRY_ABI = [
@@ -72,8 +70,6 @@ class ChainContext:
     web3: Web3
     account: str
 
-# TODO: add common data structures
-
 
 def prompt_non_empty(label: str, secret: bool = False) -> str:
     while True:
@@ -102,8 +98,12 @@ def connect_chain_with_account() -> ChainContext:
 
 
 def prompt_contract_address(web3: Web3, label: str) -> str:
-    address = prompt_non_empty(f"{label} address: ")
-    return web3.to_checksum_address(address)
+    address = web3.to_checksum_address(prompt_non_empty(f"{label} address: "))
+    if web3.eth.get_code(address) in (b"", b"0x"):
+        raise ValueError(
+            f"{address} has no contract code — did you paste a wallet address instead of the {label} contract address?"
+        )
+    return address
 
 def prompt_did_document_hash() -> tuple[bytes, str]:
     """Prompt for a DID document hash, either as a 0x-prefixed bytes32
@@ -193,5 +193,3 @@ def sign_credential_hash(web3: Web3, private_key: str, credential_hash_hex: str)
     if signature.startswith("0x"):
         return signature
     return f"0x{signature}"
-
-# TODO: add common functions for

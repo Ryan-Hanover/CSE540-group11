@@ -3,9 +3,10 @@ pragma solidity ^0.8.20;
 
 /// @title DIDRegistry
 /// @notice On-chain registry for managing Decentralized Identifiers (DIDs)
-/// @dev Manages the Decentralized Identifiers (DIDs) for users in the dApp system.
-///      This acts as the foundational registry to ensure identities are active before 
-///      issuing credentials or verifying proofs, reducing the risk of identity theft.
+/// @dev Tracks which wallet addresses have a registered DID and whether it is
+///      still active. The Issuer and Verifier both call isDIDActive() before
+///      trusting anything tied to a given address, so this contract is the
+///      anchor point for identity in the rest of the system.
 contract DIDRegistry {
 
     /// @notice Represents a registered DID entry
@@ -46,7 +47,8 @@ contract DIDRegistry {
     }
 
     /// @notice Registers a new decentralized identity for a voter.
-    ///      This simulates the foundational KYC verification process.
+    ///      Stands in for the off-chain KYC step a real deployment would run
+    ///      before letting an address take part in the system.
     /// @dev Each address may only register one DID. The documentHash must be
     ///      non-zero and should correspond to an off-chain DID document
     ///      (e.g. stored on IPFS). Emits {DIDRegistered} on success.

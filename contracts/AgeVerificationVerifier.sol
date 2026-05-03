@@ -63,10 +63,10 @@ contract Verifier {
     }
 
     /// @notice Verifies a credential by delegating to the issuer contract
-    /// @dev Scans the presented proof and verifies it on the blockchain.
-    ///      The verifier checks if the voter's credential is valid AND above 18.
-    ///      By calling the Issuer contract, the verifier only learns true or false 
-    ///      and nothing else thereby successfully mitigating excessive personal data disclosure.
+    /// @dev The verifier only sees a true/false result from the Issuer; it never
+    ///      sees the voter's age, name, or any other field from the credential.
+    ///      That is the whole point of routing the check through the Issuer
+    ///      instead of letting the verifier read voter data directly.
     /// @param credentialHash The keccak256 hash of the credential data
     /// @param cid The IPFS Content Identifier pointing to the off-chain credential document
     /// @param signature The cryptographic signature produced by the issuer over the credential
